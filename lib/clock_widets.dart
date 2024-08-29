@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_analog_clock/flutter_analog_clock.dart';
 import 'package:intl/intl.dart';
 import 'package:moon_phase_plus/moon_widget.dart';
-
-
+import 'dart:math' as math;
 
 class ClockDivider extends StatelessWidget {
   const ClockDivider({
@@ -20,13 +19,12 @@ class ClockDivider extends StatelessWidget {
   }
 }
 
-
 class LeapYearIndicator extends StatelessWidget {
   const LeapYearIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final textColor = const Color.fromARGB(255, 199, 175, 154);
+    const textColor = Color.fromARGB(255, 199, 175, 154);
     DateTime now = DateTime.now();
     int currentYear = now.year;
 
@@ -36,7 +34,7 @@ class LeapYearIndicator extends StatelessWidget {
       nextLeapYear++;
     }
 
-    // Determine the arrow position
+    // Determine the rotation angle for the arrow
     int arrowPosition = (nextLeapYear - currentYear);
     if (arrowPosition > 3) {
       arrowPosition =
@@ -45,71 +43,71 @@ class LeapYearIndicator extends StatelessWidget {
       arrowPosition = 4; // Position L (current leap year)
     }
 
+    // Calculate the rotation angle in radians (90 degrees per position)
+    double rotationAngle = 0;
+    switch (arrowPosition) {
+      case 1:
+        rotationAngle = 0; // No rotation for "1"
+        break;
+      case 2:
+        rotationAngle = math.pi / 2; // Rotate 90 degrees for "2"
+        break;
+      case 3:
+        rotationAngle = math.pi; // Rotate 180 degrees for "3"
+        break;
+      case 4:
+        rotationAngle = -math.pi / 2; // Rotate -90 degrees for "L"
+        break;
+    }
+
     return SizedBox(
       height: 80,
       width: 80,
-      child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // North
-            Positioned(
-              top: 0,
-              child: Text(
-                '1',
-                style: TextStyle(fontSize: 16, color: textColor),
-              ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // North (1)
+          const Positioned(
+            top: 0,
+            child: Text(
+              '1',
+              style: TextStyle(fontSize: 16, color: textColor),
             ),
-            // East
-            Positioned(
-              right: 0,
-              child: Text(
-                '2',
-                style: TextStyle(fontSize: 16, color: textColor),
-              ),
+          ),
+          // East (2)
+          const Positioned(
+            right: 0,
+            child: Text(
+              '2',
+              style: TextStyle(fontSize: 16, color: textColor),
             ),
-            // South
-            Positioned(
-              bottom: 0,
-              child: Text(
-                '3',
-                style: TextStyle(fontSize: 16, color: textColor),
-              ),
+          ),
+          // South (3)
+          const Positioned(
+            bottom: 0,
+            child: Text(
+              '3',
+              style: TextStyle(fontSize: 16, color: textColor),
             ),
-            // West
-            Positioned(
-              left: 0,
-              child: Text(
-                'L',
-                style: TextStyle(fontSize: 16, color: textColor),
-              ),
+          ),
+          // West (L)
+          const Positioned(
+            left: 0,
+            child: Text(
+              'L',
+              style: TextStyle(fontSize: 16, color: textColor),
             ),
-            // Arrow indicating the year
-            Positioned(
-              top: arrowPosition == 1
-                  ? -15
-                  : arrowPosition == 3
-                      ? 15
-                      : 0,
-              right: arrowPosition == 2
-                  ? -15
-                  : arrowPosition == 1 || arrowPosition == 3
-                      ? 0
-                      : 15,
-              bottom: arrowPosition == 3 ? -15 : 0,
-              left: arrowPosition == 4
-                  ? 15
-                  : arrowPosition == 2 || arrowPosition == 4
-                      ? 0
-                      : 15,
-              child: Icon(
-                Icons.arrow_upward_rounded,
-                size: 16,
-                color: textColor,
-              ),
+          ),
+          // Arrow indicating the leap year
+          Transform.rotate(
+            angle: rotationAngle,
+            child: const Icon(
+              Icons.arrow_upward_rounded,
+              size: 24,
+              color: textColor,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -129,7 +127,7 @@ class CustomAnalogClock extends StatelessWidget {
     DateTime lastFullMoon = calculateLastFullMoon(now);
     DateTime nextFullMoon = calculateNextFullMoon(now);
 
-    final textColor = const Color.fromARGB(255, 255, 194, 141);
+    const textColor = Color.fromARGB(255, 255, 194, 141);
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -138,14 +136,14 @@ class CustomAnalogClock extends StatelessWidget {
           child: Center(
             child: MoonWidget(
               date: DateTime.now(),
-              resolution: 64,
+              resolution: 140,
               size: 70,
               moonColor: textColor,
-              earthshineColor: Colors.blueGrey.shade900,
+              earthshineColor: Colors.blueGrey.shade700,
             ),
           ),
         ),
-        AnalogClock(
+        const AnalogClock(
           hourHandColor: Colors.white,
           minuteHandColor: Colors.white,
           secondHandColor: textColor,
@@ -157,7 +155,7 @@ class CustomAnalogClock extends StatelessWidget {
           right: 70, // Positioning date at the top of the clock
           child: Text(
             DateFormat('EEE  d').format(DateTime.now()), // Date format Tue 17
-            style: TextStyle(
+            style: const TextStyle(
                 color: textColor,
                 fontSize: 28,
                 backgroundColor: Colors.black26),
@@ -176,7 +174,7 @@ class CustomAnalogClock extends StatelessWidget {
               ),
               Text(
                 DateFormat('MMM').format(lastFullMoon),
-                style: TextStyle(
+                style: const TextStyle(
                   color: textColor,
                   fontSize: 20,
                 ),
@@ -184,7 +182,7 @@ class CustomAnalogClock extends StatelessWidget {
               ),
               Text(
                 DateFormat('d').format(lastFullMoon),
-                style: TextStyle(
+                style: const TextStyle(
                   color: textColor,
                   fontSize: 20,
                 ),
@@ -201,12 +199,12 @@ class CustomAnalogClock extends StatelessWidget {
               Container(
                 height: 16,
                 width: 16,
-                decoration:
-                    BoxDecoration(color: textColor, shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                    color: textColor, shape: BoxShape.circle),
               ),
               Text(
                 DateFormat('MMM').format(nextFullMoon),
-                style: TextStyle(
+                style: const TextStyle(
                   color: textColor,
                   fontSize: 20,
                 ),
@@ -214,7 +212,7 @@ class CustomAnalogClock extends StatelessWidget {
               ),
               Text(
                 DateFormat('d').format(nextFullMoon),
-                style: TextStyle(
+                style: const TextStyle(
                   color: textColor,
                   fontSize: 20,
                 ),
@@ -243,5 +241,3 @@ class CustomAnalogClock extends StatelessWidget {
     return lastFullMoon.add(Duration(days: lunarCycleDays.round()));
   }
 }
-
-
